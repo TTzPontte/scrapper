@@ -30,6 +30,16 @@ Conditions:
   Prod: !Equals [ !Ref Environment, prod ]
 
 Resources:
+  Layer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      Description: Layer description
+      ContentUri: src/layer
+      CompatibleRuntimes:
+        - python3.8
+    Metadata:
+      BuildMethod: python3.8
+
   ScrapingFn:
     Type: AWS::Serverless::Function
     Properties:
