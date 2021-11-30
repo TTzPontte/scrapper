@@ -30,12 +30,13 @@ Conditions:
   Prod: !Equals [ !Ref Environment, prod ]
 
 Resources:
-  ScrappingFn:
+  ScrapingFn:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub "ScrappingFn-${Environment}"
-      Handler: src/hello-word/handler.handler
-      Description: Scrapping
+      FunctionName: !Sub "ScrapingFn-${Environment}"
+      CodeUri: ./src/api
+      Handler: handler.handler
+      Description: Scraping websites
       Events:
         Api:
           Type: Api
