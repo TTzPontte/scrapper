@@ -7,9 +7,8 @@ phases:
   build:
     commands:
       - sam build
-      - sam package -t template.yml --s3-bucket $S3_BUCKET --output-template-file ./template-export.yml
+      - sam package -t template.yml --s3-bucket $S3_BUCKET --output-template-file template-export.yml
       
 artifacts:
   files:
-    - template.yml
     - template-export.yml
