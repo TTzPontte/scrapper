@@ -18,6 +18,8 @@ Globals:
     Runtime: python3.8
     MemorySize: 1024
     Timeout: 120
+    Layers:
+      - !Ref Layer
 
   Api:
     OpenApiVersion: 3.0.2
