@@ -19,7 +19,7 @@ Globals:
     MemorySize: 1024
     Timeout: 120
     Layers:
-      - !Ref Layer
+      - !Ref ScrapperLibrariesLayer
 
   Api:
     OpenApiVersion: 3.0.2
@@ -32,11 +32,11 @@ Conditions:
   Prod: !Equals [ !Ref Environment, prod ]
 
 Resources:
-  Layer:
+  ScrapperLibrariesLayer:
     Type: AWS::Serverless::LayerVersion
     Properties:
-      Description: Layer description
-      ContentUri: src/layer
+      Description: bibliotecas comuns para as funcoes.
+      ContentUri: layers/libraries/app
       CompatibleRuntimes:
         - python3.8
     Metadata:
@@ -46,7 +46,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: !Sub "ScrapingFn-${Environment}"
-      CodeUri: ./src/api
+      CodeUri: src/api
       Handler: handler.handler
       Description: Scraping websites
       Events:

@@ -4,6 +4,18 @@ phases:
     runtime-versions:
       python: 3.8
 
+    commands:
+      - pip3 install awscli aws-sam-cli
+
+  pre_build:
+    commands:
+      # Build do layers/libraries
+      - rm -rf layers/libraries/app || true
+      - mkdir layers/libraries/app
+      - PYTHONUSERBASE="layers/libraries/app" CRYPTOGRAPHY_DONT_BUILD_RUST=1 python3.8 -m pip install --upgrade --user -r layers/libraries/requirements-prod.txt --ignore-installed
+      - mv layers/libraries/app/lib/python3.8/site-packages layers/libraries/app/python
+      - rm -r layers/libraries/app/lib layers/libraries/app/bin
+
   build:
     commands:
       - sam build
