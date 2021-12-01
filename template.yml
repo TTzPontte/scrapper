@@ -20,6 +20,7 @@ Globals:
     Timeout: 120
     Layers:
       - !Ref ScrapperLibrariesLayer
+      - !Ref ScrapperCommonLayer
 
   Api:
     OpenApiVersion: 3.0.2
@@ -35,8 +36,18 @@ Resources:
   ScrapperLibrariesLayer:
     Type: AWS::Serverless::LayerVersion
     Properties:
-      Description: bibliotecas comuns para as funcoes.
+      Description: bibliotecas externas.
       ContentUri: layers/libraries/app
+      CompatibleRuntimes:
+        - python3.8
+    Metadata:
+      BuildMethod: python3.8
+  
+  ScrapperCommonLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      Description: bibliotecas internas.
+      ContentUri: layers/common
       CompatibleRuntimes:
         - python3.8
     Metadata:
@@ -55,3 +66,10 @@ Resources:
           Properties:
             Path: /v1
             Method: POST
+
+  Chromium:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location:
+        ApplicationId: arn:aws:serverlessrepo:us-east-1:339543757547:applications/Chromium
+        SemanticVersion: 1.0.0
