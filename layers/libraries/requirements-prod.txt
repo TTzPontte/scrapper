@@ -1,5 +1,2 @@
 requests
-selenium
-webdriver-manager
-selenium-firefox
-pyvirtualdisplay
+beautifulsoup4

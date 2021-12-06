@@ -66,10 +66,3 @@ Resources:
           Properties:
             Path: /v1
             Method: POST
-
-  Chromium:
-    Type: AWS::Serverless::Application
-    Properties:
-      Location:
-        ApplicationId: arn:aws:serverlessrepo:us-east-1:339543757547:applications/Chromium
-        SemanticVersion: 1.0.0
