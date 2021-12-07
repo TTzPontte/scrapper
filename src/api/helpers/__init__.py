@@ -7,4 +7,4 @@ def scrape_vivareal(url):
 
 def scraper_zap_imovel(url):
   zap_imovel = ZapImovel(url)
-  return zap_imovel.get()
+  return zap_imovel.activate()
