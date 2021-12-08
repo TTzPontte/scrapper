@@ -47,6 +47,7 @@ class ZapImovel():
         floor = page_content.find('li', class_='js-floor')
         condominium = page_content.select_one('li.condominium span')
         iptu = page_content.select_one('li.iptu span')
+        price = page_content.select_one('li.price__item--main strong')
 
         formatted_address = self.__format_address(address.get_text(strip=True) if address is not None else '')
         
@@ -56,11 +57,13 @@ class ZapImovel():
           'cidade': formatted_address.get('city'),
           'estado': formatted_address.get('state'),
           'areaTerreno': areas and areas.get_text(strip=True) or '',
+          'areaPrivativa': 0,
           'quartos': bedrooms and bedrooms.get_text(strip=True) or '',
           'vagas': parking_spaces and parking_spaces.get_text(strip=True) or '',
           'banheiros': bathrooms and bathrooms.get_text(strip=True) or '',
           'andares': floor and floor.get_text(strip=True) or '',
           'valorCondominio': condominium and condominium.get_text(strip=True) or '',
+          'valorTotal': price and price.get_text(strip=True) or '',
           'IPTU': iptu and iptu.get_text(strip=True) or '',
         })
 
