@@ -1,18 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 
-Parameters:
-  AppId:
-    Type: String
-
-  Environment:
-    Description: ambiente de execucao do servico
-    Type: String
-    AllowedValues:
-      - dev
-      - staging
-      - prod
-
 Globals:
   Function:
     Runtime: python3.8
@@ -22,17 +10,57 @@ Globals:
       - !Ref ScrapperLibrariesLayer
       - !Ref ScrapperCommonLayer
 
-  Api:
-    OpenApiVersion: 3.0.2
-    Cors:
-      AllowMethods: "'*'"
-      AllowHeaders: "'*'"
-      AllowOrigin: "'*'"
+Parameters:
+  Project:
+    Description: name project
+    Type: String
+    Default: Scrapper
 
-Conditions:
-  Prod: !Equals [ !Ref Environment, prod ]
+  GitRefBranch:
+    Type: String
+    Default: refs/heads/master
+
+Mappings:
+  Stages:
+    master:
+      StageName: prod
+      DomainName: apisrp.pontte.com.br
+    develop:
+      StageName: dev
+      DomainName: apisrpdev.pontte.com.br
 
 Resources:
+  ScrapperAPI:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: !Join ['-', ["ScrapperAPI", !FindInMap [Stages, !Ref GitRefBranch, StageName]]]
+      StageName: !FindInMap
+        - Stages
+        - !Ref GitRefBranch
+        - StageName
+      Cors:        
+        AllowMethods: "'*'"
+        AllowHeaders: "'Authorization,Content-Type,If-Match'"
+        AllowOrigin: "'*'"
+      Domain:
+        DomainName: !FindInMap
+        - Stages
+        - !Ref GitRefBranch
+        - DomainName
+        CertificateArn: arn:aws:acm:us-east-1:848638426587:certificate/639f5ab2-c77a-4f62-8250-c85716a6753f
+        SecurityPolicy: TLS_1_2
+
+  ScrapperAPIMapping:
+    Type: AWS::ApiGateway::BasePathMapping
+    Properties:
+      BasePath: "v1"
+      RestApiId: !Ref ScrapperAPI
+      Stage: !Ref ScrapperAPI.Stage
+      DomainName: !FindInMap
+        - Stages
+        - !Ref GitRefBranch
+        - DomainName
+
   ScrapperLibrariesLayer:
     Type: AWS::Serverless::LayerVersion
     Properties:
@@ -56,13 +84,14 @@ Resources:
   ScrapingFn:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: !Sub "ScrapingFn-${Environment}"
+      FunctionName: !Join ['-', [!Ref Project, "ScrapingFn", !FindInMap [Stages, !Ref GitRefBranch, StageName]]]
       CodeUri: src/api
       Handler: handler.handler
       Description: Scraping websites
       Events:
-        Api:
+        ApiEvent:
           Type: Api
           Properties:
-            Path: /v1
+            Path: /
             Method: POST
+            RestApiId: !Ref ScrapperAPI

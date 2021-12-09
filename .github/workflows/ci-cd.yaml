@@ -1,0 +1,49 @@
+name: Deploy CI/CD
+on:
+  push:
+    branches:
+      - master
+      - develop
+jobs:
+  Run-CI-CD:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
+
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+
+      - name: Using setup sam
+        uses: aws-actions/setup-sam@v1
+
+      - name: AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Install dependencies in layers
+        run: |
+          rm -rf layers/libraries/app || true
+          mkdir layers/libraries/app
+          PYTHONUSERBASE="layers/libraries/app" CRYPTOGRAPHY_DONT_BUILD_RUST=1 python3.8 -m pip install --upgrade --user -r layers/libraries/requirements-prod.txt --ignore-installed
+          mv layers/libraries/app/lib/python3.8/site-packages layers/libraries/app/python
+          rm -r layers/libraries/app/lib layers/libraries/app/bin
+
+      - run: sam build
+      - env:
+          github_ref: ${{ github.ref }}
+        run: |
+          sam deploy \
+            --no-confirm-changeset \
+            --no-fail-on-empty-changeset \
+            --stack-name Scrapper-${github_ref:11} \
+            --s3-bucket ${{ secrets.AWS_DEPLOY_BUCKET }} \
+            --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM \
+            --region ${{ secrets.AWS_REGION }} \
+            --parameter-overrides GitRefBranch=${github_ref:11}
+            --debug
