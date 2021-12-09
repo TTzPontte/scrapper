@@ -1,0 +1,25 @@
+name: Notify Slack
+
+on:
+  push:
+    branches:
+      - master
+      - develop
+
+jobs:
+  NotifySlackDeploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify slack
+        run: >
+          curl -X POST \
+            -H "Content-type: application/json" \
+            -H "Authorization: Bearer ${{ secrets.SLACK_BOT_TOKEN_GIT_ACTION }}" \
+            -d '{
+              "channel": "C010FF5DQ72",
+            "text": ":ship: '$(echo $GITHUB_REF|cut -f3 -d/)'
+           :package: [Scrapper]
+           :bust_in_silhouette: '${GITHUB_ACTOR}$(
+            grep -q master <<< "$GITHUB_REF" && echo "\nDEPLOY EM PROD")'
+            "}' \
+            https://slack.com/api/chat.postMessage
