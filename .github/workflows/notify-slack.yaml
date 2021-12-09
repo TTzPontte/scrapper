@@ -1,0 +1,19 @@
+name: Notify Slack
+
+on:
+  push:
+    branches:
+      - master
+      - develop
+
+jobs:
+  NotifySlackDeploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify slack
+        run: curl -s https://gist.githubusercontent.com/$SLACK_SCRIPT_VERSION/inform-merge.sh|bash -s
+        env:
+          GIPHY_TOKEN: ${{ secrets.GIPHY_TOKEN }}
+          SLACK_BOT_CHANNEL: ${{ secrets.SLACK_BOT_CHANNEL }}
+          SLACK_BOT_TOKEN_GIT_ACTION: ${{ secrets.SLACK_BOT_TOKEN_GIT_ACTION }}
+          SLACK_SCRIPT_VERSION: ${{ secrets.SLACK_SCRIPT_VERSION }}
