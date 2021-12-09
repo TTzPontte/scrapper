@@ -65,7 +65,7 @@ Resources:
     Type: AWS::Serverless::LayerVersion
     Properties:
       Description: bibliotecas externas.
-      ContentUri: layers/libraries/app
+      ContentUri: layers/libraries
       CompatibleRuntimes:
         - python3.8
     Metadata:
