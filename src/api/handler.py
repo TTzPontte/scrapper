@@ -1,12 +1,25 @@
-from helpers import scraper_zap_imovel, scrape_vivareal
+import json
+
+from helpers import scraper_zap_imovel, scraper_vivareal
 
 def handler(event, context):
-    viva_real = scrape_vivareal('https://www.vivareal.com.br/venda/santa-catarina/florianopolis/bairros/trindade/casa_residencial/#')
-    zap_imovel_response = scraper_zap_imovel('https://www.zapimoveis.com.br/venda/apartamentos/sp+cajamar/?transacao=Venda&tipoUnidade=Residencial,Apartamento&tipo=Im%C3%B3vel%20usado&onde=,S%C3%A3o%20Paulo,Cajamar,,,,,city,BR%3ESao%20Paulo%3ENULL%3ECajamar,-23.335852,-46.840144')
+    urls = json.loads(event.get('body'))
 
-    print('VIVA REAL', viva_real)
-    print('ZAP IMOVEL', zap_imovel_response)
+    viva_real_response, zap_imovel_response, response = [], [], []
+
+    for url in urls:
+        viva_real = url.get('viva_real')
+        zap_imovel = url.get('zap_imovel')
+
+        if viva_real is not None:
+            viva_real_response = scraper_vivareal(viva_real)
+            response.extend(viva_real_response)
+
+        if zap_imovel is not None:
+            zap_imovel_response = scraper_zap_imovel(zap_imovel)    
+            response.extend(zap_imovel_response)  
 
     return {
-        "statusCode": 200
+        "statusCode": 200,
+        "body": json.dumps(response, ensure_ascii=False).encode('utf8')
     }

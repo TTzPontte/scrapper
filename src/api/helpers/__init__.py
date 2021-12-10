@@ -1,7 +1,7 @@
 from .zap_imovel import ZapImovel
 from .viva_real import VivaReal
 
-def scrape_vivareal(url):
+def scraper_vivareal(url):
   viva_real = VivaReal(url)
   return viva_real.activate()
 
